@@ -1,0 +1,233 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"If", "[",
+     RowBox[{
+      RowBox[{
+       RowBox[{
+       "#", "\[LeftDoubleBracket]", "\"\<ExitCode\>\"",
+        "\[RightDoubleBracket]"}], "\[Equal]", "0"}], ",",
+      RowBox[{"Once", "[",
+       RowBox[{"$wakaEXE", "=",
+        RowBox[{"StringReplace", "[",
+         RowBox[{
+          RowBox[{
+          "#", "\[LeftDoubleBracket]", "\"\<StandardOutput\>\"",
+           "\[RightDoubleBracket]"}], ",",
+          RowBox[{"{",
+           RowBox[{
+            RowBox[{"\"\<\\\\\>\"", "\[Rule]", "\"\</\>\""}], ",",
+            RowBox[{"\"\<\\r\>\"", "\[Rule]", "\"\<\>\""}], ",",
+            RowBox[{"\"\<\\n\>\"", "\[Rule]", "\"\<\>\""}]}], "}"}]}],
+         "]"}]}], "]"}], ",",
+      RowBox[{
+       RowBox[{"Print", "[", "\"\<wakatime.exe is not found\>\"", "]"}], ";",
+       "$Failed"}]}], "]"}], "&"}], "@",
+   RowBox[{"RunProcess", "[",
+    RowBox[{"{",
+     RowBox[{"\"\<where.exe\>\"", ",", " ", "\"\<wakatime\>\""}], "}"}],
+    "]"}]}], ";"}], "\[IndentingNewLine]",
+ RowBox[{
+  RowBox[{"$WakaTimePluginVersion", "=", "\"\<v0.0.2\>\""}],
+  ";"}], "\[IndentingNewLine]",
+ RowBox[{
+  RowBox[{
+   RowBox[{"WakaTime", "::", "unsaved"}], "=",
+   "\"\<The current file is not on the disk, and the heartbeat cannot be \
+sent. (This message only issue once for the current file)\>\""}],
+  ";"}], "\[IndentingNewLine]",
+ RowBox[{
+  RowBox[{"Once", "[",
+   RowBox[{"If", "[",
+    RowBox[{
+     RowBox[{"ValueQ", "[", "$PrePrint", "]"}], ",",
+     RowBox[{"$WakaTimePreReadBackUp", "=", "$PreRead"}]}], "]"}], "]"}],
+  ";"}]}], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"updateHeartbeat", "[", "]"}], ":=",
+  RowBox[{"(",
+   RowBox[{
+    RowBox[{"Once", "[",
+     RowBox[{"$LastHeartbeat", "=",
+      RowBox[{"AbsoluteTime", "[", "]"}]}], "]"}], ";", "\[IndentingNewLine]",
+    RowBox[{"If", "[",
+     RowBox[{
+      RowBox[{
+       RowBox[{
+        RowBox[{"AbsoluteTime", "[", "]"}], "-", "$LastHeartbeat"}], ">",
+       "120"}], ",", "\[IndentingNewLine]",
+      RowBox[{
+       RowBox[{"Unset", "@",
+        RowBox[{"Once", "[",
+         RowBox[{"$LastHeartbeat", "=",
+          RowBox[{"AbsoluteTime", "[", "]"}]}], "]"}]}], ";",
+       RowBox[{"Once", "[",
+        RowBox[{"$LastHeartbeat", "=",
+         RowBox[{"AbsoluteTime", "[", "]"}]}], "]"}], ";", "True"}], ",",
+      "\[IndentingNewLine]", "False"}], "]"}]}], ")"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"getGitFolder", "[", "]"}], ":=",
+  RowBox[{"(",
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"If", "[",
+       RowBox[{
+        RowBox[{
+         RowBox[{
+         "#", "\[LeftDoubleBracket]", "\"\<ExitCode\>\"",
+          "\[RightDoubleBracket]"}], "\[Equal]", "0"}], ",",
+        RowBox[{"Set", "[",
+         RowBox[{"$gitFolder", ",",
+          RowBox[{
+          "#", "\[LeftDoubleBracket]", "\"\<StandardOutput\>\"",
+           "\[RightDoubleBracket]"}]}], "]"}], ",",
+        RowBox[{"Unset", "[", "$gitFolder", "]"}]}], "]"}], "&"}], "@",
+     RowBox[{"Evaluate", "[",
+      RowBox[{"RunProcess", "[",
+       RowBox[{"{",
+        RowBox[{
+        "\"\<git\>\"", ",", "\"\<rev-parse\>\"", ",",
+         "\"\<--show-toplevel\>\""}], "}"}], "]"}], "]"}]}], ";"}],
+   ")"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"getCurrentFile", "[", "]"}], ":=",
+   RowBox[{"If", "[",
+    RowBox[{
+     RowBox[{"Not", "[",
+      RowBox[{
+       RowBox[{"Enclose", "[",
+        RowBox[{
+         RowBox[{"StringReplace", "[",
+          RowBox[{
+           RowBox[{"Quiet", "@",
+            RowBox[{"Confirm", "@",
+             RowBox[{"NotebookFileName", "[", "]"}]}]}], ",",
+           RowBox[{"\"\<\\\\\>\"", "->", "\"\</\>\""}]}], "]"}], ",",
+         RowBox[{"Null", "&"}]}], "]"}], "===", "Null"}], "]"}], ",",
+     RowBox[{"Set", "[",
+      RowBox[{"$CurrentFile", ",",
+       RowBox[{"StringReplace", "[",
+        RowBox[{
+         RowBox[{"Quiet", "@",
+          RowBox[{"NotebookFileName", "[", "]"}]}], ",",
+         RowBox[{"\"\<\\\\\>\"", "->", "\"\</\>\""}]}], "]"}]}], "]"}], ",",
+     RowBox[{"Unset", "[", "$CurrentFile", "]"}]}], "]"}]}], ";"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"manageEvaluationNotebookChange", "[", "]"}], ":=",
+   RowBox[{
+    RowBox[{
+     RowBox[{"(",
+      RowBox[{"#", ";",
+       RowBox[{"If", "[",
+        RowBox[{
+         RowBox[{"Not", "[",
+          RowBox[{"$CurrentNotebook", "===",
+           RowBox[{"EvaluationNotebook", "[", "]"}]}], "]"}], ",",
+         "\[IndentingNewLine]",
+         RowBox[{
+          RowBox[{"Quiet", "@",
+           RowBox[{"Unset", "@",
+            RowBox[{"Once", "[",
+             RowBox[{"Message", "[",
+              RowBox[{"WakaTime", "::", "unsaved"}], "]"}], "]"}]}]}], ";",
+          RowBox[{"getGitFolder", "[", "]"}], ";",
+          RowBox[{"getCurrentFile", "[", "]"}], ";",
+          RowBox[{"Unset", "@", "#"}]}]}], "]"}], ";", "#"}], ")"}], "&"}],
+    "@", "\[IndentingNewLine]",
+    RowBox[{"Unevaluated", "[",
+     RowBox[{"Once", "[",
+      RowBox[{"$CurrentNotebook", "=",
+       RowBox[{"Quiet", "@",
+        RowBox[{"EvaluationNotebook", "[", "]"}]}]}], "]"}], "]"}]}]}],
+  ";"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"sendHeartbeat", "[", "]"}], ":=",
+  RowBox[{"If", "[",
+   RowBox[{
+    RowBox[{"ValueQ", "[", "$CurrentFile", "]"}], ",",
+    RowBox[{"StartProcess", "[",
+     RowBox[{"{",
+      RowBox[{
+      "$wakaEXE", ",", " ", "\"\<--write\>\"", ",", "\n", "\"\<--plugin\>\"",
+       "  ", ",", "\[IndentingNewLine]",
+       RowBox[{
+        RowBox[{
+        "StringTemplate", "[",
+         "\"\<\\\"Mathematica-wakatime-gravifer-plugin/`PlugInVersion`\\\"\>\"\
+", "]"}], "[",
+        RowBox[{"<|",
+         RowBox[{"\"\<PlugInVersion\>\"", "->", "$WakaTimePluginVersion"}],
+         "|>"}], "]"}], ",", "\n", "\"\<--entity\>\"", "  ", ",",
+       "\[IndentingNewLine]",
+       RowBox[{
+        RowBox[{"StringTemplate", "[", "\"\<\\\"`CurrentFile`\\\"\>\"", "]"}],
+         "[",
+        RowBox[{"<|",
+         RowBox[{"\"\<CurrentFile\>\"", "\[Rule]", "$CurrentFile"}], "|>"}],
+        "]"}], ",", "\n", "\"\<--language\>\"", ",", "               ",
+       "\"\<\\\"Wolfram\\\"\>\"", ",", "\n", "\"\<--project\>\"", ",", " ",
+       RowBox[{"If", "[",
+        RowBox[{
+         RowBox[{"ValueQ", "[", "$gitFolder", "]"}], ",",
+         "\[IndentingNewLine]",
+         RowBox[{
+          RowBox[{"StringTemplate", "[", "\"\<\\\"`gitFolder`\\\"\>\"", "]"}],
+           "[",
+          RowBox[{"<|",
+           RowBox[{"\"\<gitFolder\>\"", "->",
+            RowBox[{"StringReplace", "[",
+             RowBox[{"$gitFolder", ",",
+              RowBox[{"\"\<\\\\\>\"", "->", "\"\</\>\""}]}], "]"}]}], "|>"}],
+          "]"}], ",", "\"\<\\\"wolfram-wakatime\\\"\>\""}], "]"}]}], "}"}],
+     "]"}], ",",
+    RowBox[{"Once", "[",
+     RowBox[{"Message", "[",
+      RowBox[{"WakaTime", "::", "unsaved"}], "]"}], "]"}]}], "]"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"$PrePrint", "=",
+   RowBox[{
+    RowBox[{"(",
+     RowBox[{
+      RowBox[{"manageEvaluationNotebookChange", "[", "]"}], ";",
+      RowBox[{"If", "[",
+       RowBox[{
+        RowBox[{"updateHeartbeat", "[", "]"}], ",",
+        RowBox[{"sendHeartbeat", "[", "]"}]}], "]"}], ";", "\n",
+      RowBox[{"If", "[",
+       RowBox[{
+        RowBox[{"ValueQ", "[", "$WakaTimePreReadBackUp", "]"}], ",",
+        RowBox[{"$WakaTimePreReadBackUp", "[", "#", "]"}], ",", "#"}],
+       "]"}]}], ")"}], "&"}]}], ";"}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["sss"], "Input"]
+}]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"??", "$PrePrint"}]], "Input"]
+}]]
+}]
+(* End of Notebook Content *)
