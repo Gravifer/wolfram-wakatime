@@ -6,8 +6,8 @@
 
 (* ::Author:: *)
 (*Author: Gravifer*)
-(*Date: 2021-02-21*)
-(*Version: 0.0.3*)
+(*Date: 2021-03-08*)
+(*Version: 0.0.4*)
 
 
 BeginPackage["WakaTime`"]
@@ -15,12 +15,15 @@ ClearAll[Evaluate[Context[] <> "*"]]
 
 
 Begin["`Private`"]
+Unprotect[GetWakaEXE,$WakaTimePluginVersion,
+UpdateHeartbeat,GetGitFolder,GetCurrentProject,GetCurrentFile,
+ManageEvaluationNotebookChange,SendHeartbeat]
 ClearAll[Evaluate[Context[] <> "*"]]
 
 
 GetWakaEXE[]:=If[#[["ExitCode"]]==0,Identity[$wakaEXE=Last@StringReplace[StringSplit[#[["StandardOutput"]],"\r"|"\n"],{"\\"->"/","\r"->"","\n"->""}]],Print["wakatime.exe is not found"];$Failed]&@RunProcess[{"where.exe", "wakatime.exe"}]
-Once[GetWakaEXE[]]
-$WakaTimePluginVersion="v0.0.3"
+Evaluate[GetWakaEXE[]]
+$WakaTimePluginVersion="v0.0.4"
 WakaTime::unsaved="The current file is not on the disk, and the heartbeat cannot be sent. (This message only issue once for the current file)";
 Once[If[ValueQ[$PrePrint],$WakaTimePreReadBackUp=$PreRead]]
 
@@ -34,6 +37,11 @@ UpdateHeartbeat[]:=(Once[$LastHeartbeat=AbsoluteTime[]];
 GetGitFolder[]:=(If[#[["ExitCode"]]==0,
   Set[$gitFolder,Last[FileNameSplit@StringReplace[#[["StandardOutput"]],{"\\"->"/","\r"->"","\n"->""}]]],
   Unset[$gitFolder]]&@Evaluate[RunProcess[{"git","rev-parse","--show-toplevel"}]];)
+
+
+GetGitBranch[]:=(If[#[["ExitCode"]]==0,
+  Set[$gitBranch,Last[FileNameSplit@StringReplace[#[["StandardOutput"]],{"\\"->"/","\r"->"","\n"->""}]]],
+  Unset[$gitBranch]]&@Evaluate[RunProcess[{"git","branch","--show-current"}]];)
 
 
 GetCurrentProject[]:=($CurrentProject=If[ValueQ[$gitFolder],
@@ -55,11 +63,12 @@ SendHeartbeat[]:=If[ValueQ[$CurrentFile],StartProcess[{$wakaEXE, "--write",
     StringTemplate["\"Mathematica-wakatime-gravifer-plugin/`PlugInVersion`\""][<|"PlugInVersion"->$WakaTimePluginVersion|>],
   "--entity"  ,
     StringTemplate["\"`CurrentFile`\""][<|"CurrentFile"->$CurrentFile|>],
-  "--language",
-    "\"Wolfram\"",
-  "--project", 
-    StringTemplate["\"`CurrentProject`\""][<|"CurrentProject"->$CurrentProject|>]}],
-      Once[Message[WakaTime::unsaved]]]
+  "--lineno", $Line,
+  "--language", "Wolfram",
+  "--alternate-project", 
+    StringTemplate["\"`CurrentProject`\""][<|"CurrentProject"->$CurrentProject|>],
+  "--hostname", ToUpperCase[$MachineName]}],
+ Once[Message[WakaTime::unsaved]]]
 
 
 $PreRead=(ManageEvaluationNotebookChange[];If[UpdateHeartbeat[],SendHeartbeat[]];
